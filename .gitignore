@@ -1,0 +1,8 @@
+venv/
+.venv/
+_pycache_/
+*.pyc
+.buildozer/
+bin/
+*.db
+.vscode/

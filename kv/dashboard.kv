@@ -1,0 +1,80 @@
+#:import hex kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
+#:import sp kivy.metrics.sp
+
+<DashboardScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(12)
+        canvas.before:
+            Color:
+                rgba: hex('#F4F6FA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: root.month_text
+            font_size: sp(14)
+            color: hex('#6B7280')
+            size_hint_y: None
+            height: dp(24)
+
+        # Tarjeta de balance
+        Card:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: dp(100)
+            Label:
+                text: 'Balance del mes'
+                font_size: sp(14)
+                color: hex('#6B7280')
+            Label:
+                text: root.balance_text
+                font_size: sp(32)
+                bold: True
+
+        # Ingresos vs gastos
+        BoxLayout:
+            size_hint_y: None
+            height: dp(80)
+            spacing: dp(12)
+            Card:
+                orientation: 'vertical'
+                Label:
+                    text: 'Ingresos'
+                    font_size: sp(13)
+                    color: hex('#6B7280')
+                Label:
+                    text: root.income_text
+                    bold: True
+                    color: hex('#16A34A')
+            Card:
+                orientation: 'vertical'
+                Label:
+                    text: 'Gastos'
+                    font_size: sp(13)
+                    color: hex('#6B7280')
+                Label:
+                    text: root.expense_text
+                    bold: True
+                    color: hex('#DC2626')
+
+        Label:
+            text: 'Últimos movimientos'
+            bold: True
+            font_size: sp(16)
+            halign: 'left'
+            text_size: self.size
+            size_hint_y: None
+            height: dp(28)
+
+        ScrollView:
+            do_scroll_x: False
+            GridLayout:
+                id: list_box
+                cols: 1
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height

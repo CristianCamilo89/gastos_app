@@ -1,0 +1,85 @@
+#:import hex kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
+#:import sp kivy.metrics.sp
+
+# --- Estilos globales (texto oscuro sobre fondo claro) ---
+<Label>:
+    color: hex('#1F2937')
+
+<Button>:
+    background_normal: ''
+    background_color: hex('#2563EB')
+    color: 1, 1, 1, 1
+    font_size: sp(16)
+
+<Spinner>:
+    background_color: 1, 1, 1, 1
+    color: hex('#1F2937')
+
+<SpinnerOption>:
+    background_color: hex('#374151')
+    color: 1, 1, 1, 1
+
+<TextInput>:
+    background_normal: ''
+    background_active: ''
+    background_color: 1, 1, 1, 1
+    foreground_color: hex('#1F2937')
+    hint_text_color: hex('#9CA3AF')
+    cursor_color: hex('#2563EB')
+    padding: dp(12), dp(12)
+    font_size: sp(16)
+
+<Card@BoxLayout>:
+    padding: dp(14)
+    spacing: dp(4)
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14)]
+
+<NavButton@Button>:
+    background_color: 1, 1, 1, 1
+    color: hex('#2563EB')
+
+# --- Fila de movimiento ---
+<TransactionItem>:
+    size_hint_y: None
+    height: dp(64)
+    padding: dp(12), dp(6)
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12)]
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.description
+            bold: True
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            shorten: True
+        Label:
+            text: root.subtitle
+            font_size: sp(12)
+            color: hex('#6B7280')
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            shorten: True
+    Label:
+        text: root.amount_text
+        color: root.amount_color
+        bold: True
+        size_hint_x: None
+        width: dp(110)
+        halign: 'right'
+        valign: 'middle'
+        text_size: self.size

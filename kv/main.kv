@@ -1,0 +1,33 @@
+#:import hex kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
+
+# Raíz: pantallas arriba + barra de navegación inferior
+BoxLayout:
+    orientation: 'vertical'
+    ScreenManager:
+        id: sm
+        DashboardScreen:
+            name: 'dashboard'
+        AddTransactionScreen:
+            name: 'add'
+        SummaryScreen:
+            name: 'summary'
+    BoxLayout:
+        size_hint_y: None
+        height: dp(56)
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        NavButton:
+            text: 'Inicio'
+            on_release: sm.current = 'dashboard'
+        NavButton:
+            text: '+ Nuevo'
+            bold: True
+            on_release: sm.current = 'add'
+        NavButton:
+            text: 'Resumen'
+            on_release: sm.current = 'summary'
