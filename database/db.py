@@ -3,6 +3,11 @@ import sqlite3
 from utils.constants import CATEGORIES, PAYMENT_METHODS 
 # Tablas que solo guardan una lista de nombres      
 NAMED_TABLES = ("categories", "payment_methods", "suppliers")
+# Qué columna de "transactions" guarda el nombre de cada lista
+TRANSACTION_COLUMNS = {
+    "categories": "category",
+    "payment_methods": "payment_method",
+}
 
 class Database:
     """Encapsula la conexión y las consultas a la base de datos local."""
@@ -174,3 +179,35 @@ class Database:
         with conn:
             conn.execute(f"DELETE FROM {table} WHERE id = ?", (name_id,))
         conn.close()
+    def rename_name(self, table, name_id, new_name):
+        """
+        Renombra un elemento de la lista y actualiza los movimientos que
+        usaban el nombre anterior. Devuelve False si no se pudo.
+            """
+        self._check_table(table)
+        new_name = new_name.strip()
+        if not new_name:
+            return False
+        conn = self._connect()
+        try:
+            with conn:
+                row = conn.execute(
+                    f"SELECT name FROM {table} WHERE id = ?", (name_id,)
+                ).fetchone()
+                if row is None:
+                    return False
+                old_name = row["name"]
+                conn.execute(
+                    f"UPDATE {table} SET name = ? WHERE id = ?", (new_name, name_id)
+                )
+                column = TRANSACTION_COLUMNS.get(table)
+                if column:
+                    conn.execute(
+                        f"UPDATE transactions SET {column} = ? WHERE {column} = ?",
+                        (new_name, old_name),
+                    )
+            return True
+        except sqlite3.IntegrityError:
+            return False
+        finally:
+            conn.close()
