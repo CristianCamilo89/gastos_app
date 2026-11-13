@@ -139,3 +139,38 @@ class Database:
             (ym,),
         )
         return [(r["category"], r["total"]) for r in rows]
+
+    def _check_table(self, table):
+        """Seguridad: solo se aceptan las tablas de NAMED_TABLES."""
+        if table not in NAMED_TABLES:
+            raise ValueError(f"Tabla no permitida: {table}")
+
+    def list_names(self, table):
+        """Devuelve [(id, nombre), ...] ordenado alfabéticamente."""
+        self._check_table(table)
+        rows = self._query(f"SELECT id, name FROM {table} ORDER BY name COLLATE NOCASE")
+        return [(r["id"], r["name"]) for r in rows]
+
+    def add_name(self, table, name):
+        """Agrega un nombre. Devuelve False si está vacío o ya existe."""
+        self._check_table(table)
+        name = name.strip()
+        if not name:
+            return False
+        conn = self._connect()
+        try:
+            with conn:
+                conn.execute(f"INSERT INTO {table} (name) VALUES (?)", (name,))
+            return True
+        except sqlite3.IntegrityError:
+            return False
+        finally:
+            conn.close()
+
+    def delete_name(self, table, name_id):
+        """Borra un nombre de la lista por su id."""
+        self._check_table(table)
+        conn = self._connect()
+        with conn:
+            conn.execute(f"DELETE FROM {table} WHERE id = ?", (name_id,))
+        conn.close()
