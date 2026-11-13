@@ -1,6 +1,8 @@
 """Capa de acceso a datos (SQLite). Toda la lógica SQL vive aquí."""
 import sqlite3
-
+from utils.constants import CATEGORIES, PAYMENT_METHODS 
+# Tablas que solo guardan una lista de nombres      
+NAMED_TABLES = ("categories", "payment_methods", "suppliers")
 
 class Database:
     """Encapsula la conexión y las consultas a la base de datos local."""
@@ -35,7 +37,24 @@ class Database:
                 """
             )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_tx_date ON transactions(date)")
+            for table in NAMED_TABLES:                                  # NUEVO
+                conn.execute(                                           # NUEVO
+                    f"CREATE TABLE IF NOT EXISTS {table} ("             # NUEVO
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "            # NUEVO
+                    "name TEXT NOT NULL UNIQUE COLLATE NOCASE)"         # NUEVO
+                )                                                       # NUEVO
+            self._seed(conn, "categories", CATEGORIES)                  # NUEVO
+            self._seed(conn, "payment_methods", PAYMENT_METHODS)   
         conn.close()
+
+    def _seed(self, conn, table, names):
+        """Si la tabla está vacía, la llena con los valores iniciales."""
+        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        if count == 0:
+            conn.executemany(
+                f"INSERT INTO {table} (name) VALUES (?)",
+                [(n,) for n in names],
+            )
 
     # ------------------------------------------------------------------ escritura
     def add_transaction(self, description, amount, kind, category, date, payment_method) -> int:
@@ -50,11 +69,13 @@ class Database:
             new_id = cur.lastrowid
         conn.close()
         return new_id
-    def get_transaction(self, tx_id: int):
-        """Devuelve un movimiento por su id (o None si no existe)."""
-        rows = self._query("SELECT * FROM transactions WHERE id= ?", (tx_id,))
+        def get_transaction(self, tx_id: int):
+            """Devuelve un movimiento por su id (o None si no existe). """
+        rows = self._query("SELECT * FROM transactions WHERE id = ?", (tx_id,))
         return rows[0] if rows else None
-    def update_transaction(self, tx_id, description, amount, kind, category, date, payment_method) -> None:
+
+    def update_transaction(self, tx_id, description, amount, kind,
+                           category, date, payment_method) -> None:
         """Actualiza todos los campos de un movimiento existente."""
         conn = self._connect()
         with conn:
